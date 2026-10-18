@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bloom & Balance, a personal finance tracker.">
+    <title>Bloom &amp; Balance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;family=Noto+Sans+SC:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <p class="editorial-accent"><span lang="zh-Hans">收支</span> / Income &amp; expenses</p>
+        <h1>Bloom &amp; Balance</h1>
+        <p class="site-description">Personal finance tracker</p>
+    </header>
+    <main>
+        <noscript><p>Turn on JavaScript to add transactions and view your totals.</p></noscript>
+        <p id="storage-message" class="notice" role="alert" hidden></p>
+        <section class="overview" aria-labelledby="overview-heading">
+            <div>
+                <h2 id="overview-heading">Your overview</h2>
+                <p class="section-note">All transactions · USD</p>
+            </div>
+            <dl class="totals">
+                <div class="balance-total">
+                    <dt>Current balance</dt>
+                    <dd id="current-balance" class="financial-value">$0.00</dd>
+                </div>
+                <div>
+                    <dt>Total income</dt>
+                    <dd id="total-income" class="financial-value">$0.00</dd>
+                </div>
+                <div>
+                    <dt>Total expenses</dt>
+                    <dd id="total-expenses" class="financial-value">$0.00</dd>
+                </div>
+            </dl>
+        </section>
+
+        <div class="workspace">
+            <section class="entry-section" aria-labelledby="form-heading">
+                <p class="editorial-accent"><span lang="zh-Hans">记账</span> / Record</p>
+                <h2 id="form-heading">Add transaction</h2>
+                <form id="transaction-form" novalidate>
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <input id="description" name="description" type="text" maxlength="100" required aria-describedby="description-error">
+                        <p id="description-error" class="field-error" hidden></p>
+                    </div>
+                    <div class="form-pair">
+                        <div class="field">
+                            <label for="amount">Amount (USD)</label>
+                            <input id="amount" name="amount" type="text" inputmode="decimal" required aria-describedby="amount-error">
+                            <p id="amount-error" class="field-error" hidden></p>
+                        </div>
+                        <div class="field">
+                            <label for="type">Type</label>
+                            <select id="type" name="type">
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required aria-describedby="category-error"></select>
+                        <p id="category-error" class="field-error" hidden></p>
+                    </div>
+                    <div class="field">
+                        <label for="date">Date</label>
+                        <input id="date" name="date" type="date" min="1900-01-01" max="9999-12-31" required aria-describedby="date-error">
+                        <p id="date-error" class="field-error" hidden></p>
+                    </div>
+                    <div class="form-actions">
+                        <button id="submit-transaction" type="submit">Add transaction</button>
+                        <button id="cancel-edit" class="button-quiet" type="button" hidden>Cancel edit</button>
+                    </div>
+                    <p id="form-message" class="status-message" role="status" aria-live="polite"></p>
+                </form>
+                <p class="section-note">Transactions are saved in this browser. Clearing its site data removes them.</p>
+            </section>
+
+            <section class="activity" aria-labelledby="activity-heading">
+                <h2 id="activity-heading">Recent activity</h2>
+                <div class="filters">
+                    <div class="field">
+                        <label for="filter-type">Type</label>
+                        <select id="filter-type">
+                            <option value="all">All types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expenses</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="filter-category">Category</label>
+                        <select id="filter-category"></select>
+                    </div>
+                </div>
+                <p id="transaction-count" class="section-note" role="status"></p>
+                <div id="transaction-list"></div>
+                <div id="transactions-empty" class="empty-state">
+                    <p id="empty-heading">No transactions yet.</p>
+                    <p id="empty-support">Add your first income or expense to get started.</p>
+                </div>
+                <p id="activity-message" class="status-message" role="status" aria-live="polite"></p>
+            </section>
+        </div>
+
+        <section class="insights" aria-labelledby="insights-heading">
+            <div class="section-heading">
+                <h2 id="insights-heading">Income &amp; spending</h2>
+                <p class="section-note">All transactions, regardless of history filters.</p>
+            </div>
+            <div class="chart-grid">
+                <section aria-labelledby="breakdown-heading">
+                    <h3 id="breakdown-heading">Expenses by category</h3>
+                    <p id="breakdown-empty" class="empty-state">Add an expense to see where your money goes.</p>
+                    <ul id="expense-breakdown" class="breakdown-list"></ul>
+                </section>
+                <section aria-labelledby="monthly-heading">
+                    <div class="monthly-heading">
+                        <h3 id="monthly-heading">Monthly income &amp; expenses</h3>
+                        <div class="field">
+                            <label for="chart-year">Year</label>
+                            <select id="chart-year"></select>
+                        </div>
+                    </div>
+                    <p class="chart-legend"><span class="legend-income">Income</span><span class="legend-expense">Expenses</span></p>
+                    <p id="monthly-empty" class="empty-state" hidden>No transactions in this year.</p>
+                    <div class="chart-scroll" role="region" aria-label="Monthly income and expenses chart" tabindex="0">
+                        <div id="monthly-chart" class="monthly-chart"></div>
+                    </div>
+                    <details>
+                        <summary>View monthly amounts</summary>
+                        <table>
+                            <caption id="monthly-caption">Monthly totals in USD</caption>
+                            <thead><tr><th scope="col">Month</th><th scope="col">Income</th><th scope="col">Expenses</th></tr></thead>
+                            <tbody id="monthly-table"></tbody>
+                        </table>
+                    </details>
+                </section>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer"><p>Bloom &amp; Balance <span lang="zh-Hans">收支有序</span></p></footer>
+</body>
+</html>
